@@ -11,7 +11,7 @@ import java.nio.file.Paths;
 import java.util.Base64;
 import java.util.List;
 
-public final class InvoiceImageWriter implements InvoiceWriter {
+public class InvoiceImageWriter implements InvoiceWriter {
 
   private final Path path;
 
@@ -35,7 +35,7 @@ public final class InvoiceImageWriter implements InvoiceWriter {
 
   private void writeBase64ToFile(final String base64content, final File file) {
     byte[] data = Base64.getDecoder().decode(base64content);
-    try (OutputStream stream = new FileOutputStream(file)) {
+    try (final OutputStream stream = new FileOutputStream(file)) {
       stream.write(data);
     } catch (IOException e) {
       throw new RuntimeException(e);

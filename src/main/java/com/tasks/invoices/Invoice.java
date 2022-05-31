@@ -10,7 +10,6 @@ import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.math.BigDecimal;
 import java.util.Date;
-import java.util.Objects;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "Invoice")
@@ -55,7 +54,7 @@ public class Invoice {
   }
 
   public Invoice(
-      final String bayer,
+      final String buyer,
       final String supplier,
       final String number,
       final BigDecimal amount,
@@ -64,7 +63,7 @@ public class Invoice {
       final String status,
       final String imageName,
       final String image) {
-    this.buyer = bayer;
+    this.buyer = buyer;
     this.supplier = supplier;
     this.number = number;
     this.amount = amount;
@@ -109,18 +108,5 @@ public class Invoice {
 
   public String getSupplier() {
     return supplier;
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-    Invoice invoice = (Invoice) o;
-    return Objects.equals(number, invoice.number) && Objects.equals(supplier, invoice.supplier);
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(number, supplier);
   }
 }

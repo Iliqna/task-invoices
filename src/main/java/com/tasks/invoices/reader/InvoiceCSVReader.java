@@ -12,18 +12,18 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class InvoiceCSVReader implements InvoiceBatchReader {
 
   private static final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
   private final CSVReader reader;
-  private boolean isOpen;
+  private boolean isClosed;
 
   public InvoiceCSVReader(final Path path) {
     try {
       reader = new CSVReader(new FileReader(path.toFile()));
-      this.isOpen = true;
       reader.readNext();
     } catch (IOException | CsvValidationException e) {
       throw new RuntimeException(e);
@@ -32,52 +32,33 @@ public class InvoiceCSVReader implements InvoiceBatchReader {
 
   @Override
   public List<Invoice> read(int limit) {
-    if (limit < 1) {
-      throw new RuntimeException("Limit must be a positive number");
-    }
-    final List<Invoice> invoices = new ArrayList<>();
-    if (isOpen) {
-      try {
-        while (isOpen && limit > 0) {
-          final String[] line = reader.readNext();
-          if (line != null) {
-            invoices.add(parseLine(line));
-            limit--;
-          } else {
-            isOpen = false;
-            reader.close();
-          }
-        }
-      } catch (ParseException | IOException e) {
-        throw new RuntimeException(e);
-      } catch (CsvValidationException e) {
-        System.out.println("Exception occurred while processing line: " + e.getLineNumber());
-        throw new RuntimeException(e);
-      }
-    }
-    return invoices;
-  }
 
-  // @Override
-  public List<Invoice> read2(int limit) {
+    if (isClosed) {
+      return Collections.emptyList();
+    }
     if (limit < 1) {
       throw new RuntimeException("Limit must be a positive number");
     }
-    final List<Invoice> invoices = new ArrayList<>();
-    String[] line;
+
     try {
-      while ((line = reader.readNext()) != null && limit > 0) {
-        invoices.add(parseLine(line));
-        limit--;
+      final List<Invoice> invoices = new ArrayList<>();
+      while (!isClosed && limit > 0) {
+        final String[] line = reader.readNext();
+        if (line != null) {
+          invoices.add(parseLine(line));
+          limit--;
+        } else {
+          isClosed = true;
+          reader.close();
+        }
       }
-      reader.close();
+      return invoices;
     } catch (ParseException | IOException e) {
       throw new RuntimeException(e);
     } catch (CsvValidationException e) {
-      System.out.println("Exception occurred while processing line: " + e.getLineNumber());
-      throw new RuntimeException(e);
+      throw new RuntimeException(
+          "Exception occurred while processing line: " + e.getLineNumber(), e);
     }
-    return invoices;
   }
 
   private Invoice parseLine(final String[] fields) throws ParseException {

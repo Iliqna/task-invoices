@@ -39,10 +39,10 @@ public class InvoicesTest {
     // TODO: assert invoice properties
 
     // write
-    writer.write(invoiceBatch1);
+    writer.write(invoiceList);
 
     final Map<String, List<Invoice>> invoicesByBuyer =
-        invoiceBatch1.stream().collect(groupingBy(Invoice::getBuyer));
+        invoiceList.stream().collect(groupingBy(Invoice::getBuyer));
 
     // assert write result
     for (final Map.Entry<String, List<Invoice>> entry : invoicesByBuyer.entrySet()) {
@@ -59,6 +59,6 @@ public class InvoicesTest {
     }
   }
 
-  // TODO: similar tests for xml and image writers
+  // TODO: similar integration tests for xml and image writers
   // TODO: unit tests
 }
