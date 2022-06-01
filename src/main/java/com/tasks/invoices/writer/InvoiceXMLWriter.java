@@ -25,10 +25,10 @@ public class InvoiceXMLWriter implements InvoiceWriter {
   @Override
   public void write(final List<Invoice> invoiceList) {
 
-    final Map<String, List<Invoice>> map =
+    final Map<String, List<Invoice>> invoicesByBuyer =
         invoiceList.stream().collect(groupingBy(Invoice::getBuyer));
 
-    for (final Map.Entry<String, List<Invoice>> entry : map.entrySet()) {
+    for (final Map.Entry<String, List<Invoice>> entry : invoicesByBuyer.entrySet()) {
       final File file = new File(path.toString() + "/" + entry.getKey() + ".xml");
 
       final Buyer buyer;

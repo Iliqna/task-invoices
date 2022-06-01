@@ -5,14 +5,11 @@ import com.tasks.invoices.writer.InvoiceCSVWriter;
 import com.tasks.invoices.writer.InvoiceWriter;
 import org.junit.Assert;
 import org.junit.Test;
-
-import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import static java.util.stream.Collectors.groupingBy;
 
@@ -41,22 +38,20 @@ public class InvoicesTest {
     // write
     writer.write(invoiceList);
 
-    final Map<String, List<Invoice>> invoicesByBuyer =
-        invoiceList.stream().collect(groupingBy(Invoice::getBuyer));
-
     // assert write result
-    for (final Map.Entry<String, List<Invoice>> entry : invoicesByBuyer.entrySet()) {
-      final Path resultPath = Path.of(destPath + "/" + entry.getKey() + ".csv");
-      Assert.assertTrue(Files.exists(resultPath));
-
-      final InvoiceBatchReader resultReader = new InvoiceCSVReader(resultPath);
-      final List<Invoice> invoiceResult = resultReader.read(30);
-      Assert.assertEquals(entry.getValue().size(), invoiceResult.size());
-
-      final File file = resultPath.toFile();
-      // delete the result file
-      Assert.assertTrue(file.delete());
-    }
+    invoiceList.stream()
+        .collect(groupingBy(Invoice::getBuyer))
+        .forEach(
+            (buyer, buyerInvoices) -> {
+              final Path resultPath = Path.of(destPath + "/" + buyer + ".csv");
+              Assert.assertTrue(Files.exists(resultPath));
+              final InvoiceBatchReader resultReader = new InvoiceCSVReader(resultPath);
+              final List<Invoice> invoiceResult = resultReader.read(10);
+              Assert.assertEquals(buyerInvoices.size(), invoiceResult.size());
+              // TODO: assert invoice result properties
+              // delete the result file
+              Assert.assertTrue(resultPath.toFile().delete());
+            });
   }
 
   // TODO: similar integration tests for xml and image writers
